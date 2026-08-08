@@ -1,0 +1,1021 @@
+```html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AniQuiz - AniDle</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    :root {
+        --bg: #08080d;
+        --bg2: #101018;
+        --card: #15151f;
+        --card2: #1c1c29;
+        --border: rgba(255,255,255,0.08);
+        --text: #f5f5f7;
+        --muted: #9999a8;
+        --accent: #8b5cf6;
+        --accent2: #a78bfa;
+        --danger: #ef4444;
+        --shadow: 0 15px 40px rgba(0,0,0,0.35);
+    }
+
+    body {
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                     Roboto, Helvetica, Arial, sans-serif;
+        background:
+            radial-gradient(circle at top, rgba(139,92,246,0.12), transparent 35%),
+            var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        background: rgba(8,8,13,0.82);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+        max-width: 1400px;
+        margin: auto;
+        padding: 18px 24px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: linear-gradient(135deg, var(--accent), #6366f1);
+        font-size: 21px;
+
+        box-shadow: 0 8px 25px rgba(139,92,246,0.25);
+    }
+
+    .logo-text h1 {
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .logo-text span {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    main {
+        max-width: 1400px;
+        margin: auto;
+        padding: 55px 24px 80px;
+    }
+
+    .hero {
+        text-align: center;
+        margin-bottom: 45px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        padding: 7px 13px;
+        border-radius: 999px;
+
+        background: rgba(139,92,246,0.12);
+        border: 1px solid rgba(139,92,246,0.25);
+
+        color: var(--accent2);
+        font-size: 13px;
+        font-weight: 600;
+
+        margin-bottom: 18px;
+    }
+
+    .hero h2 {
+        font-size: clamp(36px, 5vw, 62px);
+        line-height: 1;
+        font-weight: 900;
+
+        background: linear-gradient(
+            135deg,
+            #ffffff,
+            #c4b5fd
+        );
+
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        margin-bottom: 16px;
+    }
+
+    .hero p {
+        max-width: 650px;
+        margin: auto;
+
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    .toolbar {
+        max-width: 650px;
+        margin: 0 auto 35px;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box span {
+        position: absolute;
+        left: 17px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        opacity: 0.65;
+    }
+
+    #search {
+        width: 100%;
+        height: 52px;
+
+        padding: 0 18px 0 48px;
+
+        border-radius: 15px;
+        border: 1px solid var(--border);
+
+        background: rgba(255,255,255,0.045);
+        color: white;
+
+        outline: none;
+        font-size: 15px;
+
+        transition: 0.2s;
+    }
+
+    #search::placeholder {
+        color: #777783;
+    }
+
+    #search:focus {
+        border-color: rgba(139,92,246,0.55);
+        background: rgba(255,255,255,0.065);
+        box-shadow: 0 0 0 4px rgba(139,92,246,0.08);
+    }
+
+    /* =========================
+       GRID
+    ========================= */
+
+    #gamesGrid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fill, minmax(235px, 1fr));
+
+        gap: 18px;
+    }
+
+    .game-card {
+        position: relative;
+
+        min-height: 180px;
+
+        padding: 24px;
+
+        border-radius: 20px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,0.055),
+                rgba(255,255,255,0.025)
+            );
+
+        border: 1px solid var(--border);
+
+        cursor: pointer;
+
+        overflow: hidden;
+
+        transition:
+            transform 0.22s ease,
+            border-color 0.22s ease,
+            background 0.22s ease,
+            box-shadow 0.22s ease;
+    }
+
+    .game-card::before {
+        content: "";
+
+        position: absolute;
+
+        width: 120px;
+        height: 120px;
+
+        right: -40px;
+        top: -40px;
+
+        border-radius: 50%;
+
+        background: rgba(139,92,246,0.10);
+
+        filter: blur(5px);
+    }
+
+    .game-card:hover {
+        transform: translateY(-5px);
+
+        border-color: rgba(139,92,246,0.45);
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(139,92,246,0.11),
+                rgba(255,255,255,0.035)
+            );
+
+        box-shadow: var(--shadow);
+    }
+
+    .game-icon {
+        width: 55px;
+        height: 55px;
+
+        border-radius: 16px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 28px;
+
+        background: rgba(139,92,246,0.13);
+
+        border: 1px solid rgba(139,92,246,0.18);
+
+        margin-bottom: 18px;
+    }
+
+    .game-name {
+        font-size: 18px;
+        font-weight: 800;
+
+        margin-bottom: 6px;
+    }
+
+    .game-description {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .play-button {
+        position: absolute;
+
+        right: 18px;
+        bottom: 18px;
+
+        width: 34px;
+        height: 34px;
+
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(139,92,246,0.16);
+
+        color: var(--accent2);
+
+        font-size: 15px;
+
+        transition: 0.2s;
+    }
+
+    .game-card:hover .play-button {
+        background: var(--accent);
+        color: white;
+        transform: translateX(2px);
+    }
+
+    .no-results {
+        display: none;
+
+        text-align: center;
+
+        color: var(--muted);
+
+        padding: 50px 20px;
+    }
+
+    /* =========================
+       PLAYER
+    ========================= */
+
+    #playerPage {
+        display: none;
+
+        position: fixed;
+        inset: 0;
+
+        z-index: 200;
+
+        background: var(--bg);
+    }
+
+    .player-header {
+        height: 68px;
+
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        padding: 10px 18px;
+
+        background: rgba(8,8,13,0.96);
+
+        border-bottom: 1px solid var(--border);
+    }
+
+    .player-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        flex: 1;
+
+        min-width: 0;
+    }
+
+    .player-title-icon {
+        font-size: 22px;
+    }
+
+    .player-title-text {
+        font-weight: 800;
+        font-size: 16px;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .player-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .player-button {
+        height: 40px;
+
+        padding: 0 14px;
+
+        border-radius: 10px;
+
+        border: 1px solid var(--border);
+
+        background: rgba(255,255,255,0.055);
+
+        color: white;
+
+        cursor: pointer;
+
+        font-size: 13px;
+        font-weight: 600;
+
+        transition: 0.2s;
+    }
+
+    .player-button:hover {
+        background: rgba(255,255,255,0.10);
+        border-color: rgba(255,255,255,0.15);
+    }
+
+    .player-button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+    }
+
+    .player-button.primary:hover {
+        background: #7c3aed;
+    }
+
+    #gameFrame {
+        width: 100%;
+        height: calc(100vh - 68px);
+
+        border: none;
+
+        display: block;
+
+        background: white;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 650px) {
+
+        .header-inner {
+            padding: 14px 16px;
+        }
+
+        main {
+            padding: 35px 16px 60px;
+        }
+
+        .hero {
+            margin-bottom: 30px;
+        }
+
+        .hero h2 {
+            font-size: 40px;
+        }
+
+        #gamesGrid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .game-card {
+            min-height: 165px;
+            padding: 17px;
+            border-radius: 16px;
+        }
+
+        .game-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 24px;
+            margin-bottom: 13px;
+        }
+
+        .game-name {
+            font-size: 15px;
+        }
+
+        .game-description {
+            font-size: 11px;
+        }
+
+        .player-header {
+            height: 60px;
+            padding: 8px 10px;
+        }
+
+        .player-button {
+            padding: 0 10px;
+            font-size: 12px;
+        }
+
+        #gameFrame {
+            height: calc(100vh - 60px);
+        }
+
+        .player-title-text {
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     LISTA GIOCHI
+========================= -->
+
+<div id="homePage">
+
+    <header>
+        <div class="header-inner">
+
+            <div class="logo">
+                <div class="logo-icon">🎮</div>
+
+                <div class="logo-text">
+                    <h1>AniQuiz</h1>
+                    <span>AniDle Hub</span>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-badge">
+                🎯 Anime Guessing Games
+            </div>
+
+            <h2>AniDle</h2>
+
+            <p>
+                Tutti i tuoi giochi anime preferiti raccolti in un unico posto.
+                Scegli un Dle e inizia a giocare.
+            </p>
+
+        </section>
+
+
+        <div class="toolbar">
+
+            <div class="search-box">
+                <span>🔎</span>
+
+                <input
+                    type="text"
+                    id="search"
+                    placeholder="Cerca un anime...">
+            </div>
+
+        </div>
+
+
+        <div id="gamesGrid"></div>
+
+        <div class="no-results" id="noResults">
+            😕 Nessun AniDle trovato.
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================
+     PLAYER IFRAME
+========================= -->
+
+<div id="playerPage">
+
+    <div class="player-header">
+
+        <button
+            class="player-button"
+            onclick="closeGame()">
+            ← Indietro
+        </button>
+
+
+        <div class="player-title">
+
+            <span
+                class="player-title-icon"
+                id="playerIcon">
+                🎮
+            </span>
+
+            <span
+                class="player-title-text"
+                id="playerTitle">
+                AniDle
+            </span>
+
+        </div>
+
+
+        <div class="player-actions">
+
+            <button
+                class="player-button"
+                onclick="reloadGame()">
+                ↻ Ricarica
+            </button>
+
+            <button
+                class="player-button primary"
+                onclick="openOriginal()">
+                ↗ Apri
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <iframe
+        id="gameFrame"
+        src=""
+        allowfullscreen>
+    </iframe>
+
+</div>
+
+
+<script>
+
+/* ==========================================================
+   DATABASE ANIDLE
+========================================================== */
+
+const games = [
+
+    {
+        name: "JujutsuDle",
+        icon: "👊",
+        description: "Indovina i personaggi di Jujutsu Kaisen.",
+        url: "https://jujutsudle.com/"
+    },
+
+    {
+        name: "HunterDle",
+        icon: "🎯",
+        description: "Indovina i personaggi di Hunter × Hunter.",
+        url: "https://animedle.org/hunterdle/"
+    },
+
+    {
+        name: "Narutodle",
+        icon: "🍥",
+        description: "Indovina i personaggi di Naruto.",
+        url: "https://narutodle.org/"
+    },
+
+    {
+        name: "OnePiecedle",
+        icon: "🏴‍☠️",
+        description: "Indovina i personaggi di One Piece.",
+        url: "https://animedle.org/onepiecedle/"
+    },
+
+    {
+        name: "DragonBallDle",
+        icon: "🐉",
+        description: "Indovina i personaggi di Dragon Ball.",
+        url: "https://animedle.org/dragonballdle/"
+    },
+
+    {
+        name: "BleachDle",
+        icon: "⚔️",
+        description: "Indovina i personaggi di Bleach.",
+        url: "https://bleachdle.org/"
+    },
+
+    {
+        name: "KimetsuDle",
+        icon: "🗡️",
+        description: "Indovina i personaggi di Demon Slayer.",
+        url: "https://kimetsudle.com/"
+    },
+
+    {
+        name: "Jojodle",
+        icon: "⭐",
+        description: "Indovina i personaggi di JoJo's Bizarre Adventure.",
+        url: "https://jojodle.com/"
+    },
+
+    {
+        name: "ChainsawDle",
+        icon: "🪚",
+        description: "Indovina i personaggi di Chainsaw Man.",
+        url: "https://animedle.org/chainsawdle/"
+    },
+
+    {
+        name: "MyHeroDle",
+        icon: "💥",
+        description: "Indovina i personaggi di My Hero Academia.",
+        url: "https://animedle.org/myheroacademia/"
+    },
+
+    {
+        name: "Kingdomle",
+        icon: "👑",
+        description: "Indovina i personaggi di Kingdom.",
+        url: "https://animedle.org/kingdomle/"
+    },
+
+    {
+        name: "OPMDle",
+        icon: "👊",
+        description: "Indovina i personaggi di One Punch Man.",
+        url: "https://opmdle.com/"
+    },
+
+    {
+        name: "HaikyuuDle",
+        icon: "🏐",
+        description: "Indovina i personaggi di Haikyuu!!.",
+        url: "https://animedle.org/haikyuudle/"
+    },
+
+    {
+        name: "BlueLockDle",
+        icon: "⚽",
+        description: "Indovina i personaggi di Blue Lock.",
+        url: "https://bluelockdle.com/"
+    },
+
+    {
+        name: "Attack on Titan Dle",
+        icon: "🧱",
+        description: "Indovina i personaggi di Attack on Titan.",
+        url: "https://animedle.org/attackontitan/"
+    },
+
+    {
+        name: "FairyTailDle",
+        icon: "🐉",
+        description: "Indovina i personaggi di Fairy Tail.",
+        url: "https://animedle.org/fairytail/"
+    },
+
+    {
+        name: "SoloLevelingDle",
+        icon: "⚔️",
+        description: "Indovina i personaggi di Solo Leveling.",
+        url: "https://animedle.org/sololevelingdle/"
+    },
+
+    {
+        name: "FullmetalDle",
+        icon: "⚗️",
+        description: "Indovina i personaggi di Fullmetal Alchemist.",
+        url: "https://animedle.org/fullmetalalchemistdle/"
+    },
+
+    {
+        name: "CloverDle",
+        icon: "🍀",
+        description: "Indovina i personaggi di Black Clover.",
+        url: "https://cloverdle.com/"
+    },
+
+    {
+        name: "SakamotoDle",
+        icon: "🔫",
+        description: "Indovina i personaggi di Sakamoto Days.",
+        url: "https://animedle.org/sakamotodle/"
+    },
+
+    {
+        name: "SpyDle",
+        icon: "🕵️",
+        description: "Indovina i personaggi di Spy × Family.",
+        url: "https://animedle.org/spydle/"
+    },
+
+    {
+        name: "Vinlandle",
+        icon: "⚔️",
+        description: "Indovina i personaggi di Vinland Saga.",
+        url: "https://animedle.org/vinlandle/"
+    },
+
+    {
+        name: "FrierenDle",
+        icon: "🧙",
+        description: "Indovina i personaggi di Frieren.",
+        url: "https://animedle.org/frierendle/"
+    },
+
+    {
+        name: "IppoDle",
+        icon: "🥊",
+        description: "Indovina i personaggi di Hajime no Ippo.",
+        url: "https://animedle.org/ippodle/"
+    }
+
+];
+
+
+/* ==========================================================
+   ELEMENTI
+========================================================== */
+
+const gamesGrid = document.getElementById("gamesGrid");
+const searchInput = document.getElementById("search");
+const noResults = document.getElementById("noResults");
+
+const homePage = document.getElementById("homePage");
+const playerPage = document.getElementById("playerPage");
+
+const gameFrame = document.getElementById("gameFrame");
+
+const playerTitle = document.getElementById("playerTitle");
+const playerIcon = document.getElementById("playerIcon");
+
+let currentGame = null;
+
+
+/* ==========================================================
+   CREA LE CARD
+========================================================== */
+
+function renderGames(filter = "") {
+
+    gamesGrid.innerHTML = "";
+
+    const query = filter.toLowerCase().trim();
+
+    const filteredGames = games.filter(game =>
+        game.name.toLowerCase().includes(query) ||
+        game.description.toLowerCase().includes(query)
+    );
+
+
+    filteredGames.forEach((game, index) => {
+
+        const card = document.createElement("div");
+
+        card.className = "game-card";
+
+        card.dataset.index = index;
+
+
+        card.innerHTML = `
+
+            <div class="game-icon">
+                ${game.icon}
+            </div>
+
+            <div class="game-name">
+                ${game.name}
+            </div>
+
+            <div class="game-description">
+                ${game.description}
+            </div>
+
+            <div class="play-button">
+                ▶
+            </div>
+
+        `;
+
+
+        card.addEventListener("click", () => {
+            openGame(game);
+        });
+
+
+        gamesGrid.appendChild(card);
+
+    });
+
+
+    noResults.style.display =
+        filteredGames.length === 0
+            ? "block"
+            : "none";
+}
+
+
+/* ==========================================================
+   APRI GIOCO
+========================================================== */
+
+function openGame(game) {
+
+    currentGame = game;
+
+    playerTitle.textContent = game.name;
+    playerIcon.textContent = game.icon;
+
+    gameFrame.src = game.url;
+
+    homePage.style.display = "none";
+    playerPage.style.display = "block";
+
+    document.body.style.overflow = "hidden";
+
+    window.scrollTo(0, 0);
+}
+
+
+/* ==========================================================
+   CHIUDI GIOCO
+========================================================== */
+
+function closeGame() {
+
+    gameFrame.src = "";
+
+    playerPage.style.display = "none";
+    homePage.style.display = "block";
+
+    document.body.style.overflow = "";
+
+    currentGame = null;
+}
+
+
+/* ==========================================================
+   RICARICA
+========================================================== */
+
+function reloadGame() {
+
+    if (!currentGame) return;
+
+    gameFrame.src = "";
+
+    setTimeout(() => {
+        gameFrame.src = currentGame.url;
+    }, 50);
+}
+
+
+/* ==========================================================
+   APRI SITO ORIGINALE
+========================================================== */
+
+function openOriginal() {
+
+    if (!currentGame) return;
+
+    window.open(
+        currentGame.url,
+        "_blank",
+        "noopener,noreferrer"
+    );
+}
+
+
+/* ==========================================================
+   RICERCA
+========================================================== */
+
+searchInput.addEventListener("input", () => {
+
+    renderGames(searchInput.value);
+
+});
+
+
+/* ==========================================================
+   ESC = TORNA INDIETRO
+========================================================== */
+
+document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape" &&
+        playerPage.style.display === "block") {
+
+        closeGame();
+
+    }
+
+});
+
+
+/* ==========================================================
+   AVVIO
+========================================================== */
+
+renderGames();
+
+</script>
+
+</body>
+</html>
+```
