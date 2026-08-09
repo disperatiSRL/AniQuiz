@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniQuiz Football</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #080b10;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gameWrapper {
+    position: relative;
+    width: min(96vw, 1400px);
+    aspect-ratio: 16 / 9;
+    max-height: 94vh;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #16863d;
+    border-radius: 14px;
+    box-shadow:
+        0 20px 70px rgba(0, 0, 0, .55),
+        0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* ---------------- HUD ---------------- */
+
+#hud {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.scoreBox {
+    min-width: 72px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 900;
+    text-shadow: 0 2px 5px rgba(0,0,0,.7);
+}
+
+#timer {
+    min-width: 90px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    background: rgba(0,0,0,.55);
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+#redScore {
+    color: #ff4d55;
+}
+
+#blueScore {
+    color: #4da3ff;
+}
+
+/* ---------------- STATUS ---------------- */
+
+#status {
+    position: absolute;
+    left: 50%;
+    top: 72px;
+    transform: translateX(-50%);
+    z-index: 10;
+
+    padding: 8px 16px;
+    border-radius: 999px;
+
+    background: rgba(0,0,0,.5);
+    font-size: 14px;
+    font-weight: 700;
+
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+#connectionDot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 7px;
+    background: #e5a700;
+}
+
+#connectionDot.connected {
+    background: #26d95c;
+}
+
+#connectionDot.error {
+    background: #ff3d47;
+}
+
+/* ---------------- OVERLAY ---------------- */
+
+#overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(4, 7, 10, .76);
+    backdrop-filter: blur(8px);
+
+    border-radius: 14px;
+}
+
+.overlayBox {
+    width: min(90%, 500px);
+    padding: 34px;
+
+    text-align: center;
+
+    border-radius: 20px;
+    background: rgba(18, 22, 29, .96);
+    border: 1px solid rgba(255,255,255,.1);
+
+    box-shadow: 0 25px 70px rgba(0,0,0,.5);
+}
+
+.overlayBox h1 {
+    margin: 0 0 10px;
+    font-size: 42px;
+}
+
+.overlayBox p {
+    color: #b9c0ca;
+    line-height: 1.5;
+}
+
+button {
+    border: 0;
+    border-radius: 10px;
+    padding: 13px 22px;
+    margin-top: 10px;
+
+    background: #ffffff;
+    color: #111;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    cursor: pointer;
+    transition: transform .15s, opacity .15s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button.secondary {
+    background: #2b323c;
+    color: white;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ---------------- CONTROLS ---------------- */
+
+#controls {
+    position: absolute;
+    left: 18px;
+    bottom: 18px;
+    z-index: 10;
+
+    padding: 10px 13px;
+    border-radius: 10px;
+
+    background: rgba(0,0,0,.48);
+    backdrop-filter: blur(5px);
+
+    font-size: 12px;
+    color: #d7dce2;
+
+    pointer-events: none;
+}
+
+#controls b {
+    color: white;
+}
+
+/* ---------------- GOAL ---------------- */
+
+#goalMessage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.7);
+
+    z-index: 25;
+
+    font-size: clamp(55px, 9vw, 140px);
+    font-weight: 1000;
+
+    text-transform: uppercase;
+
+    opacity: 0;
+    pointer-events: none;
+
+    text-shadow:
+        0 8px 20px rgba(0,0,0,.7),
+        0 0 40px rgba(255,255,255,.25);
+}
+
+#goalMessage.show {
+    animation: goalAnimation 1.6s ease forwards;
+}
+
+@keyframes goalAnimation {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.5);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+
+    45% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* ---------------- COUNTDOWN ---------------- */
+
+#countdown {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 20;
+
+    font-size: clamp(90px, 15vw, 220px);
+    font-weight: 1000;
+
+    text-shadow: 0 10px 30px rgba(0,0,0,.7);
+
+    pointer-events: none;
+}
+
+/* ---------------- GAME OVER ---------------- */
+
+#finalScore {
+    font-size: 30px;
+    font-weight: 900;
+    margin: 15px 0;
+}
+
+/* ---------------- MOBILE NOTICE ---------------- */
+
+#mobileNotice {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    #mobileNotice {
+        display: block;
+        margin-top: 18px;
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(255,255,255,.05);
+        color: #aeb5bf;
+        font-size: 12px;
+    }
+
+    #controls {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="gameWrapper">
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="hud">
+        <div class="scoreBox" id="redScore">0</div>
+
+        <div id="timer">03:00</div>
+
+        <div class="scoreBox" id="blueScore">0</div>
+    </div>
+
+    <div id="status">
+        <span id="connectionDot"></span>
+        <span id="statusText">Connessione...</span>
+    </div>
+
+    <div id="controls">
+        <b>WASD</b> movimento &nbsp; • &nbsp;
+        <b>Click sinistro</b> tiro &nbsp; • &nbsp;
+        <b>Click destro</b> passaggio
+        &nbsp; • &nbsp;
+        <b>Controller</b> supportato
+    </div>
+
+    <div id="goalMessage"></div>
+
+    <div id="countdown" class="hidden"></div>
+
+    <div id="overlay">
+        <div class="overlayBox">
+
+            <h1 id="overlayTitle">⚽ AniQuiz Football</h1>
+
+            <p id="overlayText">
+                In attesa degli altri giocatori...
+            </p>
+
+            <div id="finalScore"></div>
+
+            <button id="readyButton" class="hidden">
+                Sono pronto
+            </button>
+
+            <button id="backButton" class="secondary">
+                Esci
+            </button>
+
+            <div id="mobileNotice">
+                Per giocare comodamente usa una tastiera o un controller.
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+/*
+ * Configurazione multiplayer.
+ *
+ * Se il tuo sistema di stanze imposta già MP_SERVER,
+ * questa variabile non è necessaria.
+ */
+window.MP_SERVER = "wss://anime-multiplayer-server.onrender.com";
+</script>
+
+<script src="js/multiplayer.js"></script>
+<script src="js/calcio.js"></script>
+
+</body>
+</html>
